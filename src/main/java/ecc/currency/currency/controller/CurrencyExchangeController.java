@@ -48,14 +48,14 @@ public class CurrencyExchangeController {
   }
 
   @GetMapping("/")
-  public ResponseEntity<List<ResponseExchange>> getCurrencyExchange(@RequestParam String sourceCurrency,
+  public ResponseEntity<ResponseExchange> getCurrencyExchange(@RequestParam String sourceCurrency,
                                                                   @RequestParam String targetCurrency,
                                                                   @RequestParam Date effectiveStartDate) {
     RequestExchange request= new RequestExchange();
     request.setSourceCurrency(sourceCurrency);
     request.setTargetCurrency(targetCurrency);
     request.setEffectiveStartDate(effectiveStartDate);
-    return new ResponseEntity<List<ResponseExchange>>(currencyExchangeService.retrieveCurrent(request), HttpStatus.ACCEPTED);
+    return new ResponseEntity<ResponseExchange>(currencyExchangeService.retrieveCurrent(request), HttpStatus.ACCEPTED);
   }
 
 }

@@ -13,6 +13,6 @@ public interface CurrencyExchangeService {
 
   Boolean deleteCurrencyExchange(RequestExchange currencyExchange);
 
-  List<ResponseExchange> retrieveCurrent(RequestExchange requestExchange);
+  ResponseExchange retrieveCurrent(RequestExchange requestExchange);
 
 }
