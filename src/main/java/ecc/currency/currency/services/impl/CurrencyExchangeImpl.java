@@ -3,6 +3,7 @@ package ecc.currency.currency.services.impl;
 import ecc.currency.currency.domain.CurrencyExchange;
 import ecc.currency.currency.dto.RequestExchange;
 import ecc.currency.currency.dto.ResponseExchange;
+import ecc.currency.currency.repository.CurrencyExchangeCriteriaRepository;
 import ecc.currency.currency.repository.CurrencyExchangeRepository;
 import ecc.currency.currency.services.CurrencyExchangeService;
 import java.util.ArrayList;
@@ -23,18 +24,15 @@ public class CurrencyExchangeImpl implements CurrencyExchangeService {
 
   private MongoTemplate mongoTemplate;
 
+  private CurrencyExchangeCriteriaRepository currencyExchangeCriteriaRepository;
+
 
   @Override
   public ResponseExchange insertCurrencyExchange(CurrencyExchange currencyExchange) {
     currencyExchange.setStatus(true);
     if (canInsert(currencyExchange)) {
       exchangeRepository.insert(currencyExchange);
-      ResponseExchange responseExchange = new ResponseExchange();
-      responseExchange.setSourceCurrency(currencyExchange.getSourceCurrency());
-      responseExchange.setTargetCurrency(currencyExchange.getTargetCurrency());
-      responseExchange.setExchangeRate(currencyExchange.getExchangeRate());
-      responseExchange.setEffectiveStartDate(currencyExchange.getEffectiveStartDate());
-      return responseExchange;
+      return mapCurrencyExchange(currencyExchange);
     }
     return null;
   }
@@ -125,16 +123,19 @@ public class CurrencyExchangeImpl implements CurrencyExchangeService {
 
   private ResponseExchange responseExchangeListByTriangularMethod(RequestExchange requestExchange) {
 
-    List<CurrencyExchange> sourceCurrency =
+    List<CurrencyExchange> sourceCurrency = currencyExchangeCriteriaRepository.
         retrieveCurrencyExchangeBySourceCurrencyAndStatusAndEffectiveStaDate(requestExchange.getSourceCurrency(),
             requestExchange.getEffectiveStartDate());
+
     if (sourceCurrency.size() < 1) {
       throw new RuntimeException("Source Currency Exchange not exist");
     }
 
     List<CurrencyExchange> targetCurrency =
-        retrieveCurrencyExchangeByTargetCurrencyAndStatusAndEffectiveStaDate(requestExchange.getTargetCurrency(),
+        currencyExchangeCriteriaRepository.retrieveCurrencyExchangeByTargetCurrencyAndStatusAndEffectiveStaDate(requestExchange.getTargetCurrency(),
             requestExchange.getEffectiveStartDate());
+
+
     if (targetCurrency.size() < 1) {
       throw new RuntimeException("Target Currency Exchange not exist");
     }
@@ -152,35 +153,13 @@ public class CurrencyExchangeImpl implements CurrencyExchangeService {
 
   }
 
-  private List<CurrencyExchange> retrieveCurrencyExchangeBySourceCurrencyAndStatusAndEffectiveStaDate(String target,
-      Date date) {
-    Query query = new Query();
-    query.addCriteria(Criteria.where("sourceCurrency").is(target))
-        .addCriteria(Criteria.where("status").is(true))
-        .addCriteria(Criteria.where("effectiveStartDate").lt(date));
-    return mongoTemplate.find(query, CurrencyExchange.class);
-
-  }
-
-  private List<CurrencyExchange> retrieveCurrencyExchangeByTargetCurrencyAndStatusAndEffectiveStaDate(String target,
-      Date date) {
-    Query query = new Query();
-    query.addCriteria(Criteria.where("targetCurrency").is(target))
-        .addCriteria(Criteria.where("status").is(true))
-        .addCriteria(Criteria.where("effectiveStartDate").lt(date));
-    return mongoTemplate.find(query, CurrencyExchange.class);
-
-  }
 
   private CurrencyExchange retrieveCurrencyExchangeByTargetAndSourceAndStatus(
       RequestExchange requestExchange) {
 
-    Query query = new Query();
-    query.addCriteria(Criteria.where("sourceCurrency").is(requestExchange.getSourceCurrency()))
-        .addCriteria(Criteria.where("targetCurrency").is(requestExchange.getTargetCurrency()))
-        .addCriteria(Criteria.where("status").is(true));
+    List<CurrencyExchange> currencyExchangesList =
+        currencyExchangeCriteriaRepository.retrieveCurrencyExchangeByTargetAndSourceAndStatus(requestExchange);
 
-    List<CurrencyExchange> currencyExchangesList = mongoTemplate.find(query, CurrencyExchange.class);
     if (currencyExchangesList.size() > 0) {
       return currencyExchangesList.get(0);
     }
@@ -191,14 +170,8 @@ public class CurrencyExchangeImpl implements CurrencyExchangeService {
 
   private CurrencyExchange retrieveCurrencyExchangeByTargetAndSourceAndStatusAndEffectiveStaDate(
       RequestExchange requestExchange) {
-
-    Query query = new Query();
-    query.addCriteria(Criteria.where("sourceCurrency").is(requestExchange.getSourceCurrency()))
-        .addCriteria(Criteria.where("targetCurrency").is(requestExchange.getTargetCurrency()))
-        .addCriteria(Criteria.where("effectiveStartDate").lt(requestExchange.getEffectiveStartDate()))
-        .addCriteria(Criteria.where("status").is(true));
-
-    List<CurrencyExchange> currencyExchangesList = mongoTemplate.find(query, CurrencyExchange.class);
+    List<CurrencyExchange> currencyExchangesList = currencyExchangeCriteriaRepository.
+        retrieveCurrencyExchangeByTargetAndSourceAndStatusAndEffectiveStaDate(requestExchange);
     if (currencyExchangesList.size() > 0) {
       return currencyExchangesList.get(0);
     }
