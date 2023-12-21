@@ -1,5 +1,6 @@
 package ecc.currency.currency.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import lombok.AllArgsConstructor;
@@ -18,10 +19,10 @@ public class CurrencyExchange {
 
   private String sourceCurrency;
   private String targetCurrency;
+  @JsonFormat(pattern="yyyy-MM-dd")
   private Date effectiveStartDate;
   private double exchangeRate;
   private Boolean status;
-  private Boolean outDated;
 
 
   public CurrencyExchange() {

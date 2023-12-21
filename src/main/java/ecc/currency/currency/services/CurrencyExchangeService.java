@@ -11,7 +11,7 @@ public interface CurrencyExchangeService {
 
   String updateCurrencyExchange(RequestExchange currencyExchange);
 
-  boolean deleteCurrencyExchange(CurrencyExchange currencyExchange);
+  Boolean deleteCurrencyExchange(RequestExchange currencyExchange);
 
   List<ResponseExchange> retrieveCurrent(RequestExchange requestExchange);
 

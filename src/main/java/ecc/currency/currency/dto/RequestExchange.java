@@ -14,4 +14,8 @@ public class RequestExchange {
   private String targetCurrency;
   private double exchangeRate;
   private Date effectiveStartDate;
+
+  public RequestExchange() {
+
+  }
 }
