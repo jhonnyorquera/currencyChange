@@ -2,11 +2,10 @@ package ecc.currency.currency.controller;
 
 
 import ecc.currency.currency.domain.CurrencyExchange;
+import ecc.currency.currency.dto.RequestExchange;
 import ecc.currency.currency.dto.ResponseExchange;
-import ecc.currency.currency.repository.CurrencyExchangeRepository;
 import ecc.currency.currency.services.CurrencyExchangeService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,6 +27,13 @@ public class CurrencyExchangeController {
 
     return new ResponseEntity<ResponseExchange>(currencyExchangeService.insertCurrencyExchange(currencyExchange), HttpStatus.CREATED);
 
+  }
+
+
+  @PostMapping("/")
+  public  ResponseEntity<String> updateCurrencyExchange(@RequestBody RequestExchange requestExchange){
+   String response= currencyExchangeService.updateCurrencyExchange(requestExchange);
+    return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
   }
 
 }

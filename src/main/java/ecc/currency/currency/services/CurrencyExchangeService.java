@@ -9,7 +9,7 @@ public interface CurrencyExchangeService {
 
   ResponseExchange insertCurrencyExchange(CurrencyExchange currencyExchange);
 
-  CurrencyExchange updateCurrencyExchange(CurrencyExchange currencyExchange);
+  String updateCurrencyExchange(RequestExchange currencyExchange);
 
   boolean deleteCurrencyExchange(CurrencyExchange currencyExchange);
 

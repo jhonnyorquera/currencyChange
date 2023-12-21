@@ -1,6 +1,7 @@
 package ecc.currency.currency.domain;
 
 import java.time.ZonedDateTime;
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
@@ -17,7 +18,7 @@ public class CurrencyExchange {
 
   private String sourceCurrency;
   private String targetCurrency;
-  private ZonedDateTime effectiveStartDate;
+  private Date effectiveStartDate;
   private double exchangeRate;
   private Boolean status;
   private Boolean outDated;
