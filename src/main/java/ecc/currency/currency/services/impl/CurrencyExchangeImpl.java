@@ -7,12 +7,9 @@ import ecc.currency.currency.repository.CurrencyExchangeCriteriaRepository;
 import ecc.currency.currency.repository.CurrencyExchangeRepository;
 import ecc.currency.currency.services.CurrencyExchangeService;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 
@@ -104,8 +101,7 @@ public class CurrencyExchangeImpl implements CurrencyExchangeService {
 
     List<ResponseExchange> responseExchangesPath = new ArrayList<>();
     currencyExchangesSource.stream().forEach(source -> {
-      currencyExchangeTarget.stream().forEach(target ->
-      {
+      currencyExchangeTarget.stream().forEach(target -> {
         if (source.getTargetCurrency().equals(target.getSourceCurrency())) {
           responseExchangesPath.add(mapCurrencyExchange(source));
           responseExchangesPath.add(mapCurrencyExchange(target));
@@ -123,18 +119,15 @@ public class CurrencyExchangeImpl implements CurrencyExchangeService {
 
   private ResponseExchange responseExchangeListByTriangularMethod(RequestExchange requestExchange) {
 
-    List<CurrencyExchange> sourceCurrency = currencyExchangeCriteriaRepository.
-        retrieveCurrencyExchangeBySourceCurrencyAndStatusAndEffectiveStaDate(requestExchange.getSourceCurrency(),
-            requestExchange.getEffectiveStartDate());
+    List<CurrencyExchange> sourceCurrency = currencyExchangeCriteriaRepository.retrieveCurrencyExchangeBySourceCurrencyAndStatusAndEffectiveStaDate(
+        requestExchange.getSourceCurrency(), requestExchange.getEffectiveStartDate());
 
     if (sourceCurrency.size() < 1) {
       throw new RuntimeException("Source Currency Exchange not exist");
     }
 
-    List<CurrencyExchange> targetCurrency =
-        currencyExchangeCriteriaRepository.retrieveCurrencyExchangeByTargetCurrencyAndStatusAndEffectiveStaDate(requestExchange.getTargetCurrency(),
-            requestExchange.getEffectiveStartDate());
-
+    List<CurrencyExchange> targetCurrency = currencyExchangeCriteriaRepository.retrieveCurrencyExchangeByTargetCurrencyAndStatusAndEffectiveStaDate(
+        requestExchange.getTargetCurrency(), requestExchange.getEffectiveStartDate());
 
     if (targetCurrency.size() < 1) {
       throw new RuntimeException("Target Currency Exchange not exist");
@@ -144,8 +137,8 @@ public class CurrencyExchangeImpl implements CurrencyExchangeService {
 
     if (pathConversion.size() > 1) {
       return new ResponseExchange(pathConversion.get(0).getSourceCurrency(), pathConversion.get(1).getTargetCurrency(),
-          Math.floor(pathConversion.get(0).getExchangeRate() * pathConversion.get(1).getExchangeRate() * 10000) / 10000
-          , requestExchange.getEffectiveStartDate());
+          Math.floor(pathConversion.get(0).getExchangeRate() * pathConversion.get(1).getExchangeRate() * 10000) / 10000,
+          requestExchange.getEffectiveStartDate());
 
     } else {
       throw new RuntimeException("There isn´t a way for conversion");
@@ -154,11 +147,10 @@ public class CurrencyExchangeImpl implements CurrencyExchangeService {
   }
 
 
-  private CurrencyExchange retrieveCurrencyExchangeByTargetAndSourceAndStatus(
-      RequestExchange requestExchange) {
+  private CurrencyExchange retrieveCurrencyExchangeByTargetAndSourceAndStatus(RequestExchange requestExchange) {
 
-    List<CurrencyExchange> currencyExchangesList =
-        currencyExchangeCriteriaRepository.retrieveCurrencyExchangeByTargetAndSourceAndStatus(requestExchange);
+    List<CurrencyExchange> currencyExchangesList = currencyExchangeCriteriaRepository.retrieveCurrencyExchangeByTargetAndSourceAndStatus(
+        requestExchange);
 
     if (currencyExchangesList.size() > 0) {
       return currencyExchangesList.get(0);
@@ -170,8 +162,8 @@ public class CurrencyExchangeImpl implements CurrencyExchangeService {
 
   private CurrencyExchange retrieveCurrencyExchangeByTargetAndSourceAndStatusAndEffectiveStaDate(
       RequestExchange requestExchange) {
-    List<CurrencyExchange> currencyExchangesList = currencyExchangeCriteriaRepository.
-        retrieveCurrencyExchangeByTargetAndSourceAndStatusAndEffectiveStaDate(requestExchange);
+    List<CurrencyExchange> currencyExchangesList = currencyExchangeCriteriaRepository.retrieveCurrencyExchangeByTargetAndSourceAndStatusAndEffectiveStaDate(
+        requestExchange);
     if (currencyExchangesList.size() > 0) {
       return currencyExchangesList.get(0);
     }
