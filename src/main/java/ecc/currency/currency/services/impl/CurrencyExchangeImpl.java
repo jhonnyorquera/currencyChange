@@ -9,7 +9,7 @@ import ecc.currency.currency.services.CurrencyExchangeService;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import org.springframework.data.mongodb.core.MongoTemplate;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 
@@ -19,8 +19,6 @@ public class CurrencyExchangeImpl implements CurrencyExchangeService {
 
   private CurrencyExchangeRepository exchangeRepository;
 
-  private MongoTemplate mongoTemplate;
-
   private CurrencyExchangeCriteriaRepository currencyExchangeCriteriaRepository;
 
 
@@ -29,7 +27,7 @@ public class CurrencyExchangeImpl implements CurrencyExchangeService {
     currencyExchange.setStatus(true);
     if (canInsert(currencyExchange)) {
       exchangeRepository.insert(currencyExchange);
-      return mapCurrencyExchange(currencyExchange);
+      return mapCurrencyExchangeToRespseExchange(currencyExchange);
     }
     return null;
   }
@@ -44,10 +42,7 @@ public class CurrencyExchangeImpl implements CurrencyExchangeService {
       throw new RuntimeException("Exchange Rate can´t be null or zero, please review");
     }
 
-    RequestExchange requestExchange = new RequestExchange(currencyExchange.getSourceCurrency(),
-        currencyExchange.getTargetCurrency(), currencyExchange.getExchangeRate(),
-        currencyExchange.getEffectiveStartDate());
-    if (retrieveCurrencyExchangeByTargetAndSourceAndStatus(requestExchange) != null) {
+    if (retrieveCurrencyExchangeByTargetAndSourceAndStatus(mapCurrencyExchangeToRequestExchange(currencyExchange)) != null) {
       throw new RuntimeException("Currency Exchange already exists");
     }
     return true;
@@ -84,12 +79,11 @@ public class CurrencyExchangeImpl implements CurrencyExchangeService {
   @Override
   public ResponseExchange retrieveCurrent(RequestExchange requestExchange) {
 
-    List<ResponseExchange> responseExchangeList = new ArrayList<>();
     CurrencyExchange currencyExchangeExact;
 
     currencyExchangeExact = retrieveCurrencyExchangeByTargetAndSourceAndStatusAndEffectiveStaDate(requestExchange);
     if (currencyExchangeExact != null) {
-      return mapCurrencyExchange(currencyExchangeExact);
+      return mapCurrencyExchangeToRespseExchange(currencyExchangeExact);
     } else {
       return responseExchangeListByTriangularMethod(requestExchange);
     }
@@ -103,8 +97,8 @@ public class CurrencyExchangeImpl implements CurrencyExchangeService {
     currencyExchangesSource.stream().forEach(source -> {
       currencyExchangeTarget.stream().forEach(target -> {
         if (source.getTargetCurrency().equals(target.getSourceCurrency())) {
-          responseExchangesPath.add(mapCurrencyExchange(source));
-          responseExchangesPath.add(mapCurrencyExchange(target));
+          responseExchangesPath.add(mapCurrencyExchangeToRespseExchange(source));
+          responseExchangesPath.add(mapCurrencyExchangeToRespseExchange(target));
         }
       });
     });
@@ -112,9 +106,14 @@ public class CurrencyExchangeImpl implements CurrencyExchangeService {
     return responseExchangesPath;
   }
 
-  private ResponseExchange mapCurrencyExchange(CurrencyExchange currencyExchange) {
-    return new ResponseExchange(currencyExchange.getSourceCurrency(), currencyExchange.getTargetCurrency(),
-        currencyExchange.getExchangeRate(), currencyExchange.getEffectiveStartDate());
+  private ResponseExchange mapCurrencyExchangeToRespseExchange(CurrencyExchange currencyExchange) {
+    ModelMapper modelMapper = new ModelMapper();
+    return modelMapper.map(currencyExchange, ResponseExchange.class);
+  }
+
+  private RequestExchange mapCurrencyExchangeToRequestExchange(CurrencyExchange currencyExchange) {
+    ModelMapper modelMapper = new ModelMapper();
+    return modelMapper.map(currencyExchange, RequestExchange.class);
   }
 
   private ResponseExchange responseExchangeListByTriangularMethod(RequestExchange requestExchange) {

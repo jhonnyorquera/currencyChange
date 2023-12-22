@@ -1,21 +1,12 @@
 package ecc.currency.currency.dto;
 
-import java.util.Date;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 @Data
-@Builder
-@AllArgsConstructor
-public class RequestExchange {
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = false)
+public class RequestExchange extends Exchange {
 
-  private String sourceCurrency;
-  private String targetCurrency;
-  private double exchangeRate;
-  private Date effectiveStartDate;
-
-  public RequestExchange() {
-
-  }
 }
